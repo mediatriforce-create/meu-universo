@@ -6,10 +6,13 @@
 const SUPABASE_URL = 'https://amivjrwedwpczlziatuc.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtaXZqcndlZHdwY3psemlhdHVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0MDcwOTQsImV4cCI6MjA4Nzk4MzA5NH0.cZyXJ8PIbDTA6VpDmkjy0XjgAVudEizSz7FP2ZWDs_Y';
 
-// Nomeamos como 'supabaseClient' para não dar conflito com o objeto global 'supabase' da biblioteca
-const supabaseClient = (typeof window.supabase !== 'undefined')
-    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
-    : null;
+let supabaseClient = null;
+
+function initSupabase() {
+    if (typeof window.supabase !== 'undefined' && !supabaseClient) {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    }
+}
 
 // ==========================================
 // 1. Armazenamento
@@ -359,7 +362,18 @@ class Memory {
 
         this.element = document.createElement('div');
         this.element.className = 'memory-node';
-        this.element.style.backgroundImage = `url(${this.url})`;
+
+        // Handling image loading
+        const img = new Image();
+        img.src = this.url;
+        img.onload = () => {
+            this.element.style.backgroundImage = `url(${this.url})`;
+        };
+        img.onerror = () => {
+            // Se der erro, colocar uma cor vibrante para não ficar preto
+            this.element.style.background = 'linear-gradient(45deg, #ff4d85, #6e3996)';
+            console.warn('Falha ao carregar imagem para a memória:', this.id);
+        };
 
         for (const moon of this.moons) container.appendChild(moon.element);
 
@@ -588,7 +602,7 @@ function resize() {
 }
 window.addEventListener('resize', resize);
 resize();
-initUniverseData();
+
 
 function spawnRandomCanvasText() {
     if (AppState.phase !== 'UNIVERSE') return;
@@ -839,6 +853,10 @@ setupControls();
 // 8. Fluxos da UI
 // ==========================================
 async function bootApp() {
+    // Garantir inicialização do Supabase e dos dados
+    initSupabase();
+    initUniverseData();
+
     const data = await Storage.getMemories();
     if (data && data.length > 0) {
         AppState.phase = 'UNIVERSE';
@@ -860,6 +878,8 @@ async function bootApp() {
     }
 }
 
+// Chamar boot após pequeno atraso para garantir carregamento do CDN
+setTimeout(bootApp, 300);
 function triggerBigBang() {
     if (AppState.phase === 'PRE_BANG') {
         AppState.phase = 'EXPLODING';
