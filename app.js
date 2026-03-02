@@ -88,8 +88,10 @@ const Storage = {
                 desc: m.description
             };
         } catch (err) {
-            console.error('Erro ao salvar no Supabase:', err);
-            alert('Erro ao eternizar memória. Verifique o console.');
+            console.error('Erro detalhado do Supabase:', err);
+            // Se o erro tiver uma mensagem específica do Supabase, mostramos
+            const msg = err.message || 'Erro desconhecido';
+            alert(`Erro ao eternizar memória: ${msg}\n\nVerifique o console (F12) para detalhes.`);
             throw err;
         }
     }
