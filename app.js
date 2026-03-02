@@ -5,8 +5,10 @@
 // ==========================================
 const SUPABASE_URL = 'https://amivjrwedwpczlziatuc.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtaXZqcndlZHdwY3psemlhdHVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0MDcwOTQsImV4cCI6MjA4Nzk4MzA5NH0.cZyXJ8PIbDTA6VpDmkjy0XjgAVudEizSz7FP2ZWDs_Y';
-const supabase = (typeof supabase !== 'undefined' && SUPABASE_URL !== 'SUA_SUPABASE_URL_AQUI')
-    ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+
+// Nomeamos como 'supabaseClient' para não dar conflito com o objeto global 'supabase' da biblioteca
+const supabaseClient = (typeof window.supabase !== 'undefined')
+    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
     : null;
 
 // ==========================================
@@ -14,12 +16,12 @@ const supabase = (typeof supabase !== 'undefined' && SUPABASE_URL !== 'SUA_SUPAB
 // ==========================================
 const Storage = {
     async getMemories() {
-        if (!supabase) {
+        if (!supabaseClient) {
             const data = localStorage.getItem('nosso_universo_memories');
             return data ? JSON.parse(data) : [];
         }
 
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from('memories')
             .select('*')
             .order('created_at', { ascending: true });
@@ -39,7 +41,7 @@ const Storage = {
     },
 
     async saveNewMemory(imageBase64, date, desc) {
-        if (!supabase) {
+        if (!supabaseClient) {
             // Fallback para localStorage se não houver Supabase configurado
             const memories = await this.getMemories();
             const newMemory = { id: Date.now().toString(), url: imageBase64, date, desc };
@@ -55,19 +57,19 @@ const Storage = {
             const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
 
             // 2. Upload para o Storage
-            const { data: uploadData, error: uploadError } = await supabase.storage
+            const { data: uploadData, error: uploadError } = await supabaseClient.storage
                 .from('memories')
                 .upload(fileName, blob);
 
             if (uploadError) throw uploadError;
 
             // 3. Pegar URL Pública
-            const { data: { publicUrl } } = supabase.storage
+            const { data: { publicUrl } } = supabaseClient.storage
                 .from('memories')
                 .getPublicUrl(fileName);
 
             // 4. Salvar no Banco
-            const { data: dbData, error: dbError } = await supabase
+            const { data: dbData, error: dbError } = await supabaseClient
                 .from('memories')
                 .insert([{
                     image_url: publicUrl,
