@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nosso Universo - Joaquim & Isadora</title>
+    <link rel="stylesheet" href="styles.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <!-- Supabase Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+    <div id="app">
+        <!-- Canvas do Universo -->
+        <canvas id="universe-canvas"></canvas>
+
+        <!-- Camada de Interface -->
+        <div id="ui-layer">
+
+            <!-- Tela 1: Pré Big Bang -->
+            <div id="screen-1" class="screen active">
+                <button id="btn-start" class="glow-button">Começar o Nosso Universo</button>
+            </div>
+
+            <!-- Tela 2: O Universo -->
+            <div id="screen-2" class="screen hidden">
+                <button id="btn-add-memory" class="floating-button">+</button>
+            </div>
+
+            <!-- Div que continha textos agora removida (serão via Canvas) -->
+            <div id="memories-container"></div>
+
+            <!-- Modais -->
+
+            <!-- Upload Modal -->
+            <div id="upload-modal" class="modal hidden">
+                <div class="modal-content">
+                    <h2>Nova Memória Estelar</h2>
+                    <div class="image-preview" id="image-preview">
+                        <span id="preview-placeholder">Foto Selecionada</span>
+                    </div>
+                    <!-- Type=date garante input do formato padrão -->
+                    <input type="date" id="input-date" required />
+                    <textarea id="input-desc" placeholder="Situação (ex: Nosso primeiro cinema)"
+                        autocomplete="off"></textarea>
+
+                    <div class="modal-actions">
+                        <button id="btn-save-memory" class="glow-button">Eternizar Memória</button>
+                        <button id="btn-cancel-memory" class="text-button">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualizar Memória Modal -->
+            <div id="view-modal" class="modal hidden">
+                <div class="modal-content text-center">
+                    <button id="btn-close-view" class="close-btn">&times;</button>
+                    <h2 id="view-date" class="highlight-text"></h2>
+                    <p id="view-desc"></p>
+                    <p class="romantic-text" id="view-romantic-msg">EU TE AMO</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Input Oculto de Arquivo -->
+        <input type="file" id="file-input" accept="image/*" class="hidden-input">
+    </div>
+
+    <!-- O som não foi pedido mas adicionei comentários para onde colocar, mantive a promessa JS -->
+    <script src="app.js"></script>
+</body>
+
+</html>
